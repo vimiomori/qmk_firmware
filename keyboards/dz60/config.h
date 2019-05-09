@@ -43,4 +43,6 @@
 #define RGBLIGHT_SAT_STEP 8
 #define RGBLIGHT_VAL_STEP 8
 
+/* num of combo keys*/
+#define COMBO_COUNT 2
 #endif
