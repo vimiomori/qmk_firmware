@@ -133,10 +133,10 @@ enum combos {
     WRITE
 };
 
-const uint16_t PROGMEM jk_combo[] = {KC_A, KC_B, COMBO_END};
+const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM write_combo[] = {KC_SCLN, KC_W, COMBO_END};
 
-combo_t key_combos[COMBO_COUNT] {
+combo_t key_combos[COMBO_COUNT] = {
     [JK_ESC] = COMBO(jk_combo, KC_ESC),
     [WRITE] = COMBO_ACTION(write_combo)
 };

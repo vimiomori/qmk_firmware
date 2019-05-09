@@ -45,4 +45,5 @@
 
 /* num of combo keys*/
 #define COMBO_COUNT 2
+#define COMBO_TERM 200
 #endif
