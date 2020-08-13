@@ -118,23 +118,23 @@ void matrix_scan_user(void) {
 
 }
 
-bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  switch (keycode) {
-    case FOO:
-      if (record->event.pressed) {
-        // Do something when pressed
-      } else {
-        // Do something else when release
-      }
-      return false; // Skip all further processing of this key
-    case KC_ENTER:
-      // Play a tone when enter is pressed
-      if (record->event.pressed) {
-        PLAY_NOTE_ARRAY(tone_qwerty);
-      }
-      return true; // Let QMK send the enter press/release events
-    default:
-      return true; // Process all other keycodes normally
-  }
-}
+// bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+//   switch (keycode) {
+//     case FOO:
+//       if (record->event.pressed) {
+//         // Do something when pressed
+//       } else {
+//         // Do something else when release
+//       }
+//       return false; // Skip all further processing of this key
+//     case KC_ENTER:
+//       // Play a tone when enter is pressed
+//       if (record->event.pressed) {
+//         PLAY_NOTE_ARRAY(tone_qwerty);
+//       }
+//       return true; // Let QMK send the enter press/release events
+//     default:
+//       return true; // Process all other keycodes normally
+//   }
+// }
 
