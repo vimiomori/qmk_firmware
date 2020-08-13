@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include QMK_KEYBOARD_H
+#include <print.h>
 
 enum layouts{
     _DEFAULT = 0,
@@ -64,16 +65,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 enum combos {
     VI,
     WRITE,
-    PG_DN,
+    CMDTABL,
+    CMDTABR,
+    PG_DN
 };
 
 const uint16_t PROGMEM vi_combo[] = {KC_V, KC_I, COMBO_END};
 const uint16_t PROGMEM write_combo[] = {KC_LSFT, KC_SCLN, KC_W, KC_ENT, COMBO_END};
+const uint16_t PROGMEM cmdtabl_combo[] = {KC_LSFT, KC_LEFT, COMBO_END};
+const uint16_t PROGMEM cmdtabr_combo[] = {KC_LSFT, KC_RIGHT, COMBO_END};
 const uint16_t PROGMEM pgdn_combo[] = {KC_LSFT, KC_G, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
     [VI] = COMBO_ACTION(vi_combo),
     [WRITE] = COMBO_ACTION(write_combo),
+    [CMDTABR] = COMBO_ACTION(cmdtabr_combo),
+    [CMDTABL] = COMBO_ACTION(cmdtabl_combo),
     [PG_DN] = COMBO(pgdn_combo, KC_PGDN)
 };
 
@@ -89,6 +96,17 @@ void process_combo_event(uint8_t combo_index, bool pressed) {
         layer_on(_VIM);
       }
       break;
+    // case CMDTABR:
+    //   uprintf("%u", get_highest_layer(layer_state) == _VIM);
+    //   if (pressed && IS_LAYER_ON(_VIM)) {
+    //     tap_code16(LGUI(KC_TAB));
+    //   }
+    //   break;
+    // case CMDTABL:
+    //   if (pressed && IS_LAYER_ON(_VIM)) {
+    //     tap_code16(LGUI(LSFT(KC_TAB)));
+    //   }
+    //   break;
   }
 }
 
@@ -101,6 +119,22 @@ void matrix_scan_user(void) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-  return true;
+  switch (keycode) {
+    case FOO:
+      if (record->event.pressed) {
+        // Do something when pressed
+      } else {
+        // Do something else when release
+      }
+      return false; // Skip all further processing of this key
+    case KC_ENTER:
+      // Play a tone when enter is pressed
+      if (record->event.pressed) {
+        PLAY_NOTE_ARRAY(tone_qwerty);
+      }
+      return true; // Let QMK send the enter press/release events
+    default:
+      return true; // Process all other keycodes normally
+  }
 }
 

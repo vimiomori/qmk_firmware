@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "config_common.h"
 
-#define COMBO_COUNT 3
+#define COMBO_COUNT 5
 #define COMBO_TERM 300
 #define TAPPING_TERM 300
 
