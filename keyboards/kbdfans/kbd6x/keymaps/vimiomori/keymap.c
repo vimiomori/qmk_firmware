@@ -70,7 +70,7 @@ enum combos {
     PG_DN
 };
 
-const uint16_t PROGMEM vi_combo[] = {KC_V, KC_I, COMBO_END};
+const uint16_t PROGMEM vi_combo[] = {KC_F, KC_D, COMBO_END};
 const uint16_t PROGMEM write_combo[] = {KC_LSFT, KC_SCLN, KC_W, KC_ENT, COMBO_END};
 const uint16_t PROGMEM cmdtabl_combo[] = {KC_LSFT, KC_LEFT, COMBO_END};
 const uint16_t PROGMEM cmdtabr_combo[] = {KC_LSFT, KC_RIGHT, COMBO_END};
