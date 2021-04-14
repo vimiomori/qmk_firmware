@@ -22,6 +22,8 @@ enum layer_names {
     _RAISE,
     _ADJUST,
     _VIM,
+    _NUMPAD,
+    _
 };
 
 // Defines the keycodes used by our macros in process_record_user
@@ -42,6 +44,8 @@ enum custom_keycodes {
 #define ADJUST MO(_ADJUST)
 #define NUMPAD TT(_NUMPAD)
 #define VIM TO(_VIM)
+
+// TODO: Add pure qwerty that doesn't escape to vim mode 
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 /* Qwerty
@@ -138,7 +142,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,-----------------------------------------------------------------------------------.
  * |      |      |      |      |      |      | YANK |      |QWERTY|      |PASTE |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | CMD  |      | WORD |      |  $   |  G   | Left |  Up  | Down |Right |  0   |      |
+ * | CMD  |      | WORD |      |  $   |  G   | Left | Down |  Up  |Right |  0   |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | VimS |      |      |      |      | BACK |      |      |      |      |      | VimS |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
@@ -147,7 +151,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_VIM] = LAYOUT(
     _______, _______, _______, _______, _______, _______, YANK   , _______, QWERTY , _______, PASTE  , _______,
-    CMD    , _______, WORD   , _______, KC_DLR , KC_G   , KC_LEFT, KC_UP  , KC_DOWN, KC_RGHT, KC_0   , _______,
+    CMD    , _______, WORD   , _______, KC_DLR , KC_G   , KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, KC_0   , _______,
     VIMS   , _______, _______, _______, BACK   , _______, _______, _______, _______, _______, _______, VIMS   ,
     _______, _______, _______, _______, _______,     KC_ENT ,      _______, _______, _______, _______, _______
 ),
@@ -176,35 +180,31 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 https://docs.qmk.fm/#/custom_quantum_functions?id=programming-the-behavior-of-any-keycode
 */
 
-enum combos {
-  KJ_ESC,
-  UD_ESC,
-  CT_ESC
+enum combos_events {
+  UD,
+  CT,
+  KJ
 };
 
-const uint16_t PROGMEM kj_esc_combo[] = {KC_K, KC_J, COMBO_END};
-const uint16_t PROGMEM ud_esc_combo[] = {KC_UP, KC_DOWN, COMBO_END};
-const uint16_t PROGMEM ct_esc_combo[] = {KC_LCTL, KC_TAB, COMBO_END};
-// const uint16_t PROGMEM write_combo[] = {KC_LSFT, KC_SCLN, KC_W, KC_ENT, COMBO_END};
-// const uint16_t PROGMEM cmdtabl_combo[] = {KC_LSFT, KC_LEFT, COMBO_END};
-// const uint16_t PROGMEM cmdtabr_combo[] = {KC_LSFT, KC_RIGHT, COMBO_END};
-// const uint16_t PROGMEM pgdn_combo[] = {KC_LSFT, KC_G, COMBO_END};
+const uint16_t PROGMEM ud_combo[] = {KC_UP  , KC_DOWN, COMBO_END};
+const uint16_t PROGMEM ct_combo[] = {KC_LCTL, KC_TAB , COMBO_END};
+const uint16_t PROGMEM kj_combo[] = {KC_K   , KC_J   , COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
-    [KJ_ESC] = COMBO_ACTION(kj_esc_combo),
-    [UD_ESC] = COMBO(ud_esc_combo, KC_ESC),
-    [CT_ESC] = COMBO(ct_esc_combo, KC_ESC),
+  [UD] = COMBO(ud_combo, KC_ESC),
+  [CT] = COMBO(ct_combo, KC_ESC),
+  [KJ] = COMBO_ACTION(kj_combo)
 };
 
-void process_combo_event(uint8_t combo_index, bool pressed) {
+void process_combo_event(uint16_t combo_index, bool pressed) {
   switch(combo_index) {
-    case KJ_ESC:
+    case KJ:
       if (pressed) {
         layer_on(_VIM);
       }
       break;
+  }
 }
-
 
 static bool cmd_active = false;
 static bool vims_active = false;
@@ -215,25 +215,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case WORD:
             if (record->event.pressed) {
-                tap_code16(KC_LALT(KC_RIGHT))
+                tap_code16(LALT(KC_RIGHT));
             }
             return false;
             break;
         case BACK:
             if (record->event.pressed) {
-                tap_code16(KC_LALT(KC_LEFT))
+                tap_code16(LALT(KC_LEFT));
             }
             return false;
             break;
         case YANK:
             if (record->event.pressed) {
-                tap_code16(KC_LGUI(KC_C))
+                tap_code16(LGUI(KC_C));
             }
             return false;
             break;
         case PASTE:
             if (record->event.pressed) {
-                tap_code16(KC_LGUI(KC_V))
+                tap_code16(LGUI(KC_V));
             }
             return false;
             break;
@@ -250,23 +250,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_RIGHT:
             if (cmd_active) {
                 if (record->event.pressed) {
-                    register_code(KC_TAB)
+                    register_code(KC_TAB);
                 } else {
-                    unregister_code(KC_TAB)
+                    unregister_code(KC_TAB);
                 }
                 return false;
-            } else {
-                return true;
             }
+            return true;
             break;
         case KC_LEFT:
             if (cmd_active) {
                 if (record->event.pressed) {
-                    register_code(KC_LSFT)
-                    register_code(KC_TAB)
+                    register_code(KC_LSFT);
+                    register_code(KC_TAB);
                 } else {
-                    unregister_code(KC_LSFT)
-                    unregister_code(KC_TAB)
+                    unregister_code(KC_LSFT);
+                    unregister_code(KC_TAB);
                 }
                 return false;
             } else {
@@ -300,9 +299,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_G:
             if (vims_active) {
                 if (record->event.pressed) {
-                    register_code(KC_PGUP)
+                    register_code(KC_PGUP);
                 } else {
-                    unregister_code(KC_PGUP)
+                    unregister_code(KC_PGUP);
                 }
                 return false;
             } else {
@@ -312,9 +311,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_0:
             if (viml_active) {
                 if (record->event.pressed) {
-                    register_code(KC_HOME)
+                    register_code(KC_HOME);
                 } else {
-                    unregister_code(KC_HOME)
+                    unregister_code(KC_HOME);
                 }
                 return false;
             } else {
@@ -324,9 +323,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case KC_DLR:
             if (vims_active) {
                 if (record->event.pressed) {
-                    register_code(KC_END)
+                    register_code(KC_END);
                 } else {
-                    unregister_code(KC_END)
+                    unregister_code(KC_END);
                 }
                 return false;
             } else {
