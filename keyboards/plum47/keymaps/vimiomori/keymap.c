@@ -39,6 +39,7 @@ enum custom_keycodes {
     VIMS,
     VIML,
     VIMR,
+    VISUAL,
     WORD,
     BACK,
     YANK,
@@ -60,7 +61,6 @@ enum {
 #define RAISE MO(_RAISE)
 #define ADJUST MO(_ADJUST)
 #define NUMPAD TT(_NUMPAD)
-#define VISUAL TO(_VISUAL)
 
 // TODO: Add emoji layer
 
@@ -265,6 +265,7 @@ static bool cmd_active = false;
 static bool vims_active = false;
 static bool viml_active = false;
 static bool vimr_active = false;
+static bool visual_active = false;
 static bool pure_active = false;
 static int codevals[6];
 static uint8_t codeval_index = 0;
@@ -343,6 +344,10 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
             }
             if (!pure_active && pressed) {
                     print("JK on qwerty");
+                    if (visual_active) {
+                        visual_active = false;
+                    }
+                    clear_mods();
                     layer_clear();
                     set_single_persistent_default_layer(_VIM);
                     break;
@@ -352,7 +357,18 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (keycode >= KC_1 && keycode <= KC_0 && record->event.pressed) {
+    bool is_num = keycode >= KC_1 && keycode <= KC_0;
+    bool is_nav = (
+        keycode == KC_UP ||
+        keycode == KC_DOWN ||
+        keycode == KC_LEFT ||
+        keycode == KC_RGHT
+    );
+    bool is_act = (
+        keycode == YANK ||
+        keycode == PASTE
+    );
+    if (is_num && record->event.pressed) {
         if (!viml_active) {
             return true;
         }
@@ -364,9 +380,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
-    if (keycode == KC_UP || keycode == KC_DOWN || keycode == KC_LEFT || keycode == KC_RGHT) {
+    if (is_nav && record->event.pressed) {
         execute_x_times(keycode);
         return false;
+    }
+
+    if (is_act && visual_active && record->event.pressed) {
+        unregister_code(KC_LSFT);
+        visual_active = false;
     }
 
     if (viml_active) {
@@ -502,6 +523,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 vimr_active = true;
             } else {
                 vimr_active = false;
+            }
+            return false;
+            break;
+        case VISUAL:
+            if (record->event.pressed) {
+                if (vims_active) {
+                    tap_code(KC_HOME);
+                    register_code(KC_LSFT);
+                    tap_code(KC_END);
+                } else {
+                    register_code(KC_LSFT);
+                }
+                visual_active = true;
             }
             return false;
             break;
