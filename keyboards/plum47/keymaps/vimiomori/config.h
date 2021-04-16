@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define COMBO_COUNT 3
 #define COMBO_TERM 200
 
+#define TAPPING_TOGGLE 1
+
 /* USB Device descriptor parameter */
 #define VENDOR_ID    0xFEED
 #define PRODUCT_ID   0x0000
