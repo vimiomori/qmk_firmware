@@ -15,6 +15,7 @@
  */
 #include QMK_KEYBOARD_H
 #include <string.h>
+#include "print.h"
 
 // Defines names for use in layer keycodes and the keymap
 enum layer_names {
@@ -33,6 +34,8 @@ enum layer_names {
 // Defines the keycodes used by our macros in process_record_user
 enum custom_keycodes {
     CMD = SAFE_RANGE,
+    PURE,
+    QWERTY,
     VIMS,
     VIML,
     VIMR,
@@ -45,14 +48,14 @@ enum custom_keycodes {
     SEARCH
 };
 
-#define PURE DF(_PURE)
-#define QWERTY DF(_QWERTY)
+// #define PURE DF(_PURE)
+// #define QWERTY DF(_QWERTY)
 #define LOWER MO(_LOWER)
 #define RAISE MO(_RAISE)
 #define ADJUST MO(_ADJUST)
 #define NUMPAD TT(_NUMPAD)
 #define VIM DF(_VIM)
-#define VIML TT(_VIML)
+// #define VIML MO(_VIML)
 #define VISUAL TO(_VISUAL)
 #define CTRL LT()
 
@@ -168,9 +171,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 /* VIM
  * ,-----------------------------------------------------------------------------------.
- * | Tab  |      | WORD | REDO |      |      | YANK | UNDO |QWERTY|      |PASTE | Left |
+ * | Tab  |      | WORD | WORD | REDO |      | YANK | UNDO |QWERTY|      |PASTE | Left |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | CMD  |      | WORD |      |      |  G   | Left | Down |  Up  |Right |      |      |
+ * | CMD  |      |      |      |      |  G   | Left | Down |  Up  |Right |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | VimS | Del  |      |      |VISUAL| BACK |      |      |      |      |SEARCH| Down |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
@@ -178,8 +181,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_VIM] = LAYOUT(
-    KC_TAB,  _______, WORD,    REDO,    _______, _______, YANK,    UNDO,    QWERTY , _______, PASTE,   KC_LEFT,
-    CMD,     _______, WORD,    _______, _______, KC_G,    KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
+    KC_TAB,  _______, WORD,    WORD,    REDO,    _______, YANK,    UNDO,    QWERTY , _______, PASTE,   KC_LEFT,
+    CMD,     _______, _______, _______, _______, KC_G,    KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
     VIMS,    KC_DEL,  _______, _______, VISUAL,  BACK,    _______, _______, _______, _______, SEARCH,  KC_DOWN,
     _______, _______, _______, _______, VIML,        KC_SPC,       _______, _______, _______, _______, _______
 ),
@@ -261,53 +264,80 @@ combo_t key_combos[COMBO_COUNT] = {
   [JK] = COMBO_ACTION(jk_combo)
 };
 
-void process_combo_event(uint16_t combo_index, bool pressed) {
-  switch(combo_index) {
-    case JK:
-      if (layer_state_is(_PURE)) {
-          tap_code(KC_ESC);
-          break;
-      }
-      if (pressed) {
-        layer_on(_VIM);
-      }
-      break;
-  }
-}
-
 static bool cmd_active = false;
 static bool vims_active = false;
 static bool viml_active = false;
 static bool vimr_active = false;
-static char codevals[6];
+static bool pure_active = false;
+static int codevals[6];
 static uint8_t codeval_index = 0;
 static int times = 1;
 
+int calc_times(void) {
+    int i, k = 0;
+    for (i = 0; i < codeval_index; i++) {
+        k = 10 * k + codevals[i];
+    }
+    return k;
+}
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+    switch(combo_index) {
+        case JK:
+            if (pure_active && pressed) {
+                    print("JK on pure");
+                    tap_code(KC_ESC);
+                    break;
+            }
+            if (!pure_active && pressed) {
+                    print("JK on qwerty");
+                    layer_clear();
+                    set_single_persistent_default_layer(_VIM);
+                    break;
+            }
+        break;
+    }
+}
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (keycode >= KC_1 && keycode <= KC_0 && record->event.pressed) {
         if (!viml_active) {
             return true;
         }
-        codevals[codeval_index] = (keycode == KC_0) ? 0 : keycode - KC_1 + 1;
-        codeval_index++;
+        codevals[codeval_index++] = (keycode == KC_0) ? 0 : keycode - KC_1 + 1;
         if (codeval_index == 6) {
-            strncpy(codevals, "", sizeof(codevals));
             codeval_index = 0;
             times = 1;
-            return false;
         }
+        return false;
     }
 
     switch (keycode) {
+        case PURE:
+            if (record->event.pressed) {
+                print("moving to pure");
+                pure_active = true;
+                layer_clear();
+                set_single_persistent_default_layer(_PURE);
+            }
+            return false;
+            break;
+        case QWERTY:
+            if (record->event.pressed) {
+                print("MOVING TO QWERTY");
+                pure_active = false;
+                layer_clear();
+                set_single_persistent_default_layer(_QWERTY);
+            }
+            return false;
+            break;
         case WORD:
             if (record->event.pressed) {
                 while (times > 0) {
                     tap_code16(LALT(KC_RGHT));
                     times--;
                 }
-                strncpy(codevals, "", sizeof(codevals));
-                codeval_index = 0;
+                times = 1;
             }
             return false;
             break;
@@ -375,11 +405,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case VIML:
             if (record->event.pressed) {
                 viml_active = true;
+                layer_move(_VIML);
             } else {
                 if (codeval_index > 0) {
-                    times = atoi(codevals);
+                    times = calc_times();
+                    memset(codevals, 0, sizeof(codevals));
+                    codeval_index = 0;
                 }
                 viml_active = false;
+                layer_move(_VIM);
             }
             return false;
             break;
