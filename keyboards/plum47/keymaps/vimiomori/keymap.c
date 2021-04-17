@@ -42,12 +42,12 @@ enum custom_keycodes {
     VISUAL,
     WORD,
     BACK,
-    YANK,
     PASTE,
     REDO,
     UNDO,
     SEARCH,
-    ILINE
+    ILINE,
+    CMDSFT
 };
 
 // Tap Dance declarations
@@ -71,7 +71,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Ctrl |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  |  '   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Shift|   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  |Enter |
+ * | Shift|   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  |Shift |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |ADJUST| Num  | Alt  | GUI  |Lower |    Space    |Raise |   ←  |   ↓  |   ↑  |  →   |
  * `-----------------------------------------------------------------------------------'
@@ -79,7 +79,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_PURE] = LAYOUT(
     KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
     KC_LCTL, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-    KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
+    KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_SFTENT,
     ADJUST,  NUMPAD,  KC_LALT, KC_LGUI, LOWER,       KC_SPC,       RAISE,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT
 ),
 /* Qwerty
@@ -88,7 +88,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * | Ctrl |   A  |   S  |   D  |   F  |   G  |   H  |   J  |   K  |   L  |   ;  |  '   |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * | Shift|   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  |Enter |
+ * | Shift|   Z  |   X  |   C  |   V  |   B  |   N  |   M  |   ,  |   .  |   /  |Shift |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |ADJUST| Num  | Alt  | GUI  |Lower |    Space    |Raise |   ←  |   ↓  |   ↑  |  →   |
  * `-----------------------------------------------------------------------------------'
@@ -96,7 +96,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_QWERTY] = LAYOUT(
     KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
     KC_LCTL, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,    KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT,
-    KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_ENT,
+    KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_SFTENT,
     ADJUST,  NUMPAD,  KC_LALT, KC_LGUI, LOWER,       KC_SPC,       RAISE,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT
 ),
 
@@ -106,7 +106,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |   0  |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |   `  |      |      |      |      |      |   \  |      |
+ * |      |      |      |      |   `  |      |      |      |      |      |   \  |Enter |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |      |      |      |      |    Space    |      |      |      |      |      |
  * `-----------------------------------------------------------------------------------'
@@ -114,26 +114,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_LOWER] = LAYOUT(
     KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC, KC_CIRC, KC_AMPR, KC_ASTR, KC_EQL,  KC_PIPE, KC_BSPC,
     _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
-    _______, _______, _______, _______, KC_GRV,  _______, _______, _______, _______, _______, KC_BSLS, _______,
-    _______, _______, _______, _______, _______,     KC_SPC,       _______, _______, _______, _______, _______
+    _______, _______, _______, _______, KC_GRV,  _______, _______, _______, _______, _______, KC_BSLS, KC_ENT,
+    _______, _______, _______, _______, _______,     KC_SPC,       CMDSFT,  _______, _______, _______, _______
 ),
 
 /* Raise
  * ,-----------------------------------------------------------------------------------.
- * |      |      |      |      |      |      |      |   _  |   -  |   +  |      |      |
+ * |      |      |      |  [   |  ]   |      |      |   +  |   =  |      |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |   {  |   [  |   (  |   )  |   ]  |   }  |      |      |      |
+ * |      |      |      |  (   |  )   |      |      |   _  |   -  |      |      |      |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |      |      |      |  {   |  }   |      |      |   \  |   |  |      |      |Enter |
  * |------+------+------+------+------+------+------+------+------+------+------+------|
  * |      |      |      |      |      |    Space    |      |      |      |      |      |
  * `-----------------------------------------------------------------------------------'
  */
 [_RAISE] = LAYOUT(
-    _______, _______, _______, _______, _______, _______, _______, KC_UNDS, KC_MINS, KC_PLUS, _______, _______,
-    _______, _______, _______, KC_LCBR, KC_LBRC, KC_LPRN, KC_RPRN, KC_RBRC, KC_RCBR, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______,     KC_SPC,      _______, _______, _______, _______, _______
+    _______, _______, _______, KC_LBRC, KC_RBRC, _______, _______, KC_MINS, KC_PLUS, _______, _______, _______,
+    _______, _______, _______, KC_LPRN, KC_RPRN, _______, _______, KC_UNDS, KC_EQL,  _______, _______, _______,
+    _______, _______, _______, KC_LCBR, KC_RCBR, _______, _______, KC_BSLS, KC_PIPE, _______, _______, KC_ENT,
+    _______, _______, _______, _______, _______,     KC_SPC,       _______, _______, _______, _______, _______
 ),
 
 /* Adjust
@@ -274,7 +274,10 @@ void dance_yy(qk_tap_dance_state_t *state, void *user_data) {
     switch (state->count) {
         case 1:
             // TODO: check if anything is highlighted first to allow yanking a word with yw too
-            unregister_code(KC_LSFT);
+            if (visual_active) {
+                unregister_code(KC_LSFT);
+                visual_active = false;
+            }
             tap_code16(LGUI(KC_C));
             break;
         case 2:
@@ -322,7 +325,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
             return;
         }
         if (!pure_active && pressed) {
-            vim_active = true;
             if (visual_active) {
                 visual_active = false;
                 unregister_code(KC_LSFT);
@@ -336,7 +338,7 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool is_num = keycode >= KC_1 && keycode <= KC_0;
-    bool is_alp = keycode >= KC_A && keycode <= KC_Z;
+    // bool is_alp = keycode >= KC_A && keycode <= KC_Z;
     bool is_nav = (
         keycode == KC_UP ||
         keycode == KC_DOWN ||
@@ -344,7 +346,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         keycode == KC_RGHT
     );
     bool is_act = (
-        keycode == YANK ||
         keycode == PASTE
     );
     if (is_num && record->event.pressed) {
@@ -370,10 +371,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         visual_active = false;
     }
 
-    if (vim_active && is_alp && record->event.pressed) {
-        // TODO: add command mode
-        return false;
-    }
+    // if (is_alp && record->event.pressed) {
+    //     if (vim_active) {
+    //         return false;
+    //     }
+    //     // TODO: add command mode
+    //     return true;
+    // }
 
     if (cmd_active) {
         switch (keycode) {
@@ -463,6 +467,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
             break;
+        case CMDSFT:
+            if (record->event.pressed) {
+                register_code(KC_LGUI);
+                register_code(KC_LSFT);
+            } else {
+                unregister_code(KC_LGUI);
+                unregister_code(KC_LSFT);
+            }
+            return false;
+            break;
         case WORD:
             if (record->event.pressed) {
                 execute_x_times(LALT(KC_RGHT));
@@ -472,12 +486,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case BACK:
             if (record->event.pressed) {
                 execute_x_times(LALT(KC_LEFT));
-            }
-            return false;
-            break;
-        case YANK:
-            if (record->event.pressed) {
-                tap_code16(LGUI(KC_C));
             }
             return false;
             break;
