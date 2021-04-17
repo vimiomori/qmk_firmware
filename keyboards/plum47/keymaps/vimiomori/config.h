@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "config_common.h"
 
 /* COMBO COUNT*/
-#define COMBO_COUNT 3
+#define COMBO_COUNT 2
 #define COMBO_TERM 200
 
 #define TAPPING_TOGGLE 1

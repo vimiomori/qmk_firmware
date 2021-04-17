@@ -184,7 +184,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * `-----------------------------------------------------------------------------------'
  */
 [_VIM] = LAYOUT(
-    KC_TAB,  _______, WORD,    WORD,    REDO,    _______, TD(TD_Y),UNDO,    QWERTY , ILINE,   PASTE,   KC_LEFT,
+    KC_TAB,  _______, WORD,    WORD,    _______,    _______, TD(TD_Y),UNDO,    QWERTY , ILINE,   PASTE,   KC_LEFT,
     CMD,     QWERTY,  _______, _______, _______, TD(TD_G),KC_LEFT, KC_DOWN, KC_UP  , KC_RGHT, _______, _______,
     VIMS,    KC_DEL,  _______, _______, VISUAL,  BACK,    _______, _______, _______, _______, SEARCH,  KC_DOWN,
     _______, _______, _______, _______, VIML,        KC_SPC,       _______, _______, _______, _______, _______
@@ -206,24 +206,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
     _______, _______, _______, _______, KC_GRV,  _______, _______, _______, _______, _______, KC_BSLS, _______,
     _______, _______, _______, _______, _______,     KC_SPC,       _______, _______, _______, _______, _______
-),
-
-/* VISUAL
- * ,-----------------------------------------------------------------------------------.
- * |      |      |      |      |      |      |      |      |      |      |      |      |
- * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |      |      |      |      |      |      |      |
- * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |      |      |      |      |      |      |      |
- * |------+------+------+------+------+------+------+------+------+------+------+------|
- * |      |      |      |      |      |             |      |      |      |      |      |
- * `-----------------------------------------------------------------------------------'
- */
-[_VISUAL] = LAYOUT(
-    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______,
-    _______, _______, _______, _______, _______,     _______,      _______, _______, _______, _______, _______
 ),
 
 /* Blank
@@ -251,17 +233,16 @@ https://docs.qmk.fm/#/custom_quantum_functions?id=programming-the-behavior-of-an
 */
 
 enum combos_events {
-  CT,
   DU,
   JK
 };
 
 // TODO use JK instead of KJ
-const uint16_t PROGMEM ct_combo[] = {KC_LCTL, KC_TAB,  COMBO_END};
-const uint16_t PROGMEM du_combo[] = {KC_DOWN, KC_UP, COMBO_END};
+const uint16_t PROGMEM du_combo[] = {KC_DOWN, KC_UP,   COMBO_END};
 const uint16_t PROGMEM jk_combo[] = {KC_J,    KC_K,    COMBO_END};
 
 static bool cmd_active = false;
+static bool vim_active = false;
 static bool vims_active = false;
 static bool viml_active = false;
 static bool vimr_active = false;
@@ -272,8 +253,7 @@ static uint8_t codeval_index = 0;
 static int times = 1;
 
 combo_t key_combos[COMBO_COUNT] = {
-  [CT] = COMBO(ct_combo, KC_ESC),
-  [DU] = COMBO(du_combo, KC_ESC),
+  [DU] = COMBO_ACTION(du_combo),
   [JK] = COMBO_ACTION(jk_combo)
 };
 
@@ -294,6 +274,7 @@ void dance_yy(qk_tap_dance_state_t *state, void *user_data) {
     switch (state->count) {
         case 1:
             // TODO: check if anything is highlighted first to allow yanking a word with yw too
+            unregister_code(KC_LSFT);
             tap_code16(LGUI(KC_C));
             break;
         case 2:
@@ -335,29 +316,27 @@ void execute_x_times(uint16_t keycode) {
 
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
-    switch(combo_index) {
-        case JK:
-            if (pure_active && pressed) {
-                    print("JK on pure");
-                    tap_code(KC_ESC);
-                    break;
+    if (combo_index == JK || combo_index == DU) {
+        if (pure_active && pressed) {
+            tap_code(KC_ESC);
+            return;
+        }
+        if (!pure_active && pressed) {
+            vim_active = true;
+            if (visual_active) {
+                visual_active = false;
+                unregister_code(KC_LSFT);
             }
-            if (!pure_active && pressed) {
-                    print("JK on qwerty");
-                    if (visual_active) {
-                        visual_active = false;
-                    }
-                    clear_mods();
-                    layer_clear();
-                    set_single_persistent_default_layer(_VIM);
-                    break;
-            }
-        break;
+            layer_clear();
+            set_single_persistent_default_layer(_VIM);
+            return;
+        }
     }
 }
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     bool is_num = keycode >= KC_1 && keycode <= KC_0;
+    bool is_alp = keycode >= KC_A && keycode <= KC_Z;
     bool is_nav = (
         keycode == KC_UP ||
         keycode == KC_DOWN ||
@@ -387,7 +366,70 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (is_act && visual_active && record->event.pressed) {
         unregister_code(KC_LSFT);
+        clear_mods();
         visual_active = false;
+    }
+
+    if (vim_active && is_alp && record->event.pressed) {
+        // TODO: add command mode
+        return false;
+    }
+
+    if (cmd_active) {
+        switch (keycode) {
+            case QWERTY:
+                if (record->event.pressed) {
+                    vim_active = false;
+                }
+                return true;
+                break;
+            case KC_R:
+                if (record->event.pressed) {
+                    register_code(KC_LGUI);
+                    register_code(KC_LSFT);
+                    register_code(KC_Z);
+                } else {
+                    unregister_code(KC_LGUI);
+                    unregister_code(KC_LSFT);
+                    unregister_code(KC_Z);
+                }
+                return false;
+                break;
+            case KC_UP:
+                if (record->event.pressed) {
+                    tap_code16(LCTL(KC_RGHT));
+                } 
+                return false;
+                break;
+            case KC_DOWN:
+                if (record->event.pressed) {
+                    tap_code16(LCTL(KC_LEFT));
+                } 
+                return false;
+                break;
+            case KC_RIGHT:
+                if (record->event.pressed) {
+                    register_code(KC_LGUI);
+                    register_code(KC_TAB);
+                } else {
+                    unregister_code(KC_TAB);
+                    unregister_code(KC_LGUI);
+                }
+                return false;
+                break;
+            case KC_LEFT:
+                if (record->event.pressed) {
+                    register_code(KC_LGUI);
+                    register_code(KC_LSFT);
+                    register_code(KC_TAB);
+                } else {
+                    unregister_code(KC_LSFT);
+                    unregister_code(KC_TAB);
+                    unregister_code(KC_LGUI);
+                }
+                return false;
+                break;
+        }
     }
 
     if (viml_active) {
@@ -447,38 +489,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             break;
         case CMD:
             if (record->event.pressed) {
-                register_code(KC_LGUI);
                 cmd_active = true;
             } else {
-                unregister_code(KC_LGUI);
                 cmd_active = false;
             }
             return false;
-            break;
-        case KC_RIGHT:
-            if (cmd_active) {
-                if (record->event.pressed) {
-                    register_code(KC_TAB);
-                } else {
-                    unregister_code(KC_TAB);
-                }
-                return false;
-            }
-            return true;
-            break;
-        case KC_LEFT:
-            if (cmd_active) {
-                if (record->event.pressed) {
-                    register_code(KC_LSFT);
-                    register_code(KC_TAB);
-                } else {
-                    unregister_code(KC_LSFT);
-                    unregister_code(KC_TAB);
-                }
-                return false;
-            } else {
-                return true;
-            }
             break;
         case VIMS:
             if (record->event.pressed) {
@@ -538,18 +553,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 visual_active = true;
             }
             return false;
-            break;
-        case KC_G:
-            if (vims_active) {
-                if (record->event.pressed) {
-                    tap_code(KC_PGUP);
-                    // SEND_STRING(SS_TAP(X_PGUP));
-                //     register_code(KC_PGUP);
-                // } else {
-                //     unregister_code(KC_PGUP);
-                }
-            }
-            return true;
             break;
     }
     return true;
