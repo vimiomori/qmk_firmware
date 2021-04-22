@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define COMBO_TERM 200
 
 #define TAPPING_TOGGLE 1
+#define TAPPING_TERM 200
 
 /* USB Device descriptor parameter */
 #define VENDOR_ID    0xFEED
@@ -53,8 +54,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* COL2ROW, ROW2COL */
 #define DIODE_DIRECTION COL2ROW
 
-/* Mod-Tap */
-#define PERMISSIVE_HOLD
+// /* Mod-Tap */
+// #define PERMISSIVE_HOLD
 
 /* Mouse keys */
 #define MK_3_SPEED
