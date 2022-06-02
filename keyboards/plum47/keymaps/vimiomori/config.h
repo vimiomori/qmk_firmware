@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "config_common.h"
 
 /* COMBO COUNT*/
-#define COMBO_COUNT 2
-#define COMBO_TERM 200
+// #define COMBO_COUNT 2
+// #define COMBO_TERM 200
 
-#define TAPPING_TOGGLE 1
-#define TAPPING_TERM 200
+// #define TAPPING_TOGGLE 1
+// #define TAPPING_TERM 200
 
 /* USB Device descriptor parameter */
 #define VENDOR_ID    0xFEED
@@ -52,20 +52,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define UNUSED_PINS
 
 /* COL2ROW, ROW2COL */
-#define DIODE_DIRECTION COL2ROW
+// #define DIODE_DIRECTION COL2ROW
 
 // /* Mod-Tap */
 // #define PERMISSIVE_HOLD
 
 /* Mouse keys */
-#define MK_3_SPEED
-#define MK_MOMENTARY_ACCEL
-#define MK_C_OFFSET_UNMOD 8
-#define MK_C_OFFSET_1 3
-#define MK_C_OFFSET_2 20
-#define MK_W_INTERVAL_UNMOD 80
-#define MK_W_INTERVAL_1 120
-#define MK_W_INTERVAL_2 40
+// #define MK_3_SPEED
+// #define MK_MOMENTARY_ACCEL
+// #define MK_C_OFFSET_UNMOD 8
+// #define MK_C_OFFSET_1 3
+// #define MK_C_OFFSET_2 20
+// #define MK_W_INTERVAL_UNMOD 80
+// #define MK_W_INTERVAL_1 120
+// #define MK_W_INTERVAL_2 40
 
 /*
  * Split Keyboard specific options, make sure you have 'SPLIT_KEYBOARD = yes' in your rules.mk, and define SOFT_SERIAL_PIN.
